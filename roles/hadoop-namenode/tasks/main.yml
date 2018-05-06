@@ -1,0 +1,46 @@
+---
+- name: "Format namenode"
+  command: "{{ hadoop_dir }}/bin/hdfs namenode -format"
+  tags:
+    - format_namenode
+  # responses:
+  #   Are you sure you want to continue (yes/no)?: "yes"
+
+- name: "Start hdfs"
+  command: "{{ hadoop_dir }}/sbin/start-dfs.sh"
+
+- name: "Create tmp directory in hdfs"
+  command: "{{ hadoop_dir }}/bin/hdfs dfs -mkdir /tmp"
+
+- name: "Change permisions for tmp dir in hdfs"
+  command: "{{ hadoop_dir }}/bin/hdfs dfs -chmod 777 /tmp"
+
+- name: "Create user directory in hdfs"
+  command: "{{ hadoop_dir }}/bin/hdfs dfs -mkdir /user"
+
+- name: "Create spark directory in hdfs"
+  command: "{{ hadoop_dir }}/bin/hdfs dfs -mkdir /user/{{ spark_user }}"
+
+- name: "Change owner for spark dir in hdfs"
+  command: "{{ hadoop_dir }}/bin/hdfs dfs -chown {{ spark_user }}:{{ group_name }} /user/{{ spark_user }}"
+  tags:
+    - owner
+
+- name: "Create spark directory in hdfs for logging"
+  command: "{{ hadoop_dir }}/bin/hdfs dfs -mkdir {{ spark_log_dir }}"
+
+- name: "Change owner for spark dir in hdfs for logging"
+  command: "{{ hadoop_dir }}/bin/hdfs dfs -chown {{ spark_user }}:{{ group_name }} {{ spark_log_dir }}"
+  tags:
+    - owner
+
+- name: "Create hive directory in hdfs"
+  command: "{{ hadoop_dir }}/bin/hdfs dfs -mkdir /user/{{ hive_user }}"
+
+- name: "Change owner of hive dir in hdfs"
+  command: "{{ hadoop_dir }}/bin/hdfs dfs -chown {{ hive_user }}:{{ group_name }} /user/{{ hive_user }}"
+
+- name: "Give write permissions to group for hive dir in hdfs"
+  command: "{{ hadoop_dir }}/bin/hdfs dfs -chmod g+w /user/{{ hive_user }}"
+  tags:
+    - hadoop-hive-user

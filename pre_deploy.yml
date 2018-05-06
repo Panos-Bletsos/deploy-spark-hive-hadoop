@@ -1,0 +1,37 @@
+---
+- hosts: all
+  remote_user: root
+  gather_facts: no
+  pre_tasks:
+    - name: 'install python2'
+      raw: sudo apt-get -y install python-simplejson
+
+- hosts: all
+  gather_facts: false
+  remote_user: root
+  tasks:
+    - name: Generate ssh key
+      user:
+        name: root
+        generate_ssh_key: yes
+
+    - name: Set authorized key for user spark copying it from current user
+      authorized_key:
+        user: "root"
+        state: present
+        key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+
+    - name: "Fetch all public ssh keys"
+      shell: cat /root/.ssh/id_rsa.pub
+      register: ssh_keys
+      tags:
+        - ssh
+
+    - name: deploy keys on all servers
+      authorized_key: user=root key="{{ item[0] }}"
+      delegate_to: "{{ item[1] }}"
+      with_nested:
+        - "{{ ssh_keys.stdout }}"
+        - "{{ groups['all'] }}"
+      tags:
+        - ssh

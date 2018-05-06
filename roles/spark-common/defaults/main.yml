@@ -1,0 +1,14 @@
+---
+spark_repo: https://github.com/Panos-Bletsos/spark-cost-model-optimizer.git
+spark_branch: apply-cost-functions
+spark_driver_memory: 10g
+spark_executor_memory: 10g
+spark_executor_cores: 4
+spark_physicalCbo_enabled: "true"
+spark_physicalCbo_maxDepth: 10
+spark_physicalCbo_hashing_weight: 20
+spark_physicalCbo_cpu_weight: 1
+spark_physicalCbo_io_write_weight: 1.19
+spark_physicalCbo_io_read_weight: 1.19
+spark_physicalCbo_net_weight: 1.02
+spark_root_log_level: WARN

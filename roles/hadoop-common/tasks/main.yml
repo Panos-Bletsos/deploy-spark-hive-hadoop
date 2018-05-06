@@ -1,0 +1,42 @@
+---
+- name: "Download and unarchive Hadoop"
+  unarchive:
+    src: "https://archive.apache.org/dist/hadoop/core/hadoop-2.6.0/hadoop-2.6.0.tar.gz"
+    dest: "{{ group_directory }}"
+    owner: "{{ hadoop_user }}"
+    remote_src: yes
+
+- name: "Create data directory"
+  file:
+    path: "{{ hadoop_dir }}/data"
+    state: directory
+    owner: "{{ hadoop_user }}"
+    group: "{{ group_name }}"
+
+- name: "Setup Hadoop envs"
+  lineinfile:
+    path: "{{ hadoop_dir }}/etc/hadoop/hadoop-env.sh"
+    line: "{{ item }}"
+  with_items:
+    - "export JAVA_HOME=\"/usr\""
+    - "export HDFS_NAMENODE_USER={{ hadoop_user }}"
+    - "export HDFS_DATANODE_USER={{ hadoop_user }}"
+    - "export HDFS_SECONDARYNAMENODE_USER={{ hadoop_user }}"
+    - "export YARN_RESOURCEMANAGER_USER={{ hadoop_user }}"
+    - "export YARN_NODEMANAGER_USER={{ hadoop_user }}"
+
+- name: "Setup core-site.xml"
+  template:
+    src: core-site.xml.j2
+    dest: "{{ hadoop_dir }}/etc/hadoop/core-site.xml"
+
+- name: "Setup mapred-site.xml"
+  template:
+    src: mapred-site.xml.j2
+    dest: "{{ hadoop_dir }}/etc/hadoop/mapred-site.xml"
+
+- name: "Setup hdfs-site.xml"
+  template:
+    src: hdfs-site.xml.j2
+    dest: "{{ hadoop_dir }}/etc/hadoop/hdfs-site.xml"
+

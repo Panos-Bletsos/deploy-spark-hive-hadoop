@@ -1,0 +1,26 @@
+---
+- name: "Create dir for benchmark repo"
+  file:
+    path: "{{ bench_source_code_dir }}"
+    state: directory
+
+- name: "Clone benchmark repo"
+  git:
+    repo: "{{ bench_repo }}"
+    dest: "{{ bench_source_code_dir }}"
+    version: "{{ bench_branch }}"
+
+- name: "Assembly benchmark"
+  command: "chdir={{ bench_source_code_dir }} sbt assembly"
+
+- name: "Submit benchmark"
+  command: "chdir={{ spark_source_code_dir }} ./bin/spark-submit --master spark://{{ ansible_hostname }}:7077 --conf \"spark.sql.physicalCbo={{ spark_physicalCbo_enabled }}\" {{ bench_source_code_dir }}/target/scala-2.11/spark-tpcds-benchmark-assembly-0.1.jar"
+  environment:
+    SPARK_TPCDS_BENCH_RESULT_LOCATION: "{{ spark_tpcds_bench_result_location }}"
+    SPARK_TPCDS_BENCH_ROOT_DIR: "{{ spark_tpcds_bench_root_dir }}"
+    SPARK_TPCDS_BENCH_DSDGEN_DIR: "{{ spark_tpcds_bench_dsdgen_dir }}"
+    SPARK_TPCDS_BENCH_SCALE_FACTOR: "1"
+    SPARK_SQL_BENCH_DATABASE_NAME: "{{ benchmark_db_name }}"
+    SPARK_SQL_BENCH_ITERATIONS: "3"
+  tags:
+    - submit-benchmark

@@ -1,0 +1,21 @@
+---
+- name: "Setup spark-sql-perf"
+  hosts: master
+  remote_user: "{{ spark_user }}"
+  roles:
+    - spark-sql-perf
+  tags: setup-spark-sql-perf
+
+- name: "Setup Spark"
+  hosts: all
+  remote_user: "{{ spark_user }}"
+  roles:
+    - spark-common
+  tags: setup-spark
+
+- name: "Setup Spark master node"
+  hosts: master
+  remote_user: root
+  roles:
+    - spark-master
+  tags: setup-spark-master

@@ -1,0 +1,45 @@
+---
+- name: "Setup spark slaves"
+  template:
+    src: "slaves.j2"
+    dest: "{{ spark_source_code_dir }}/conf/slaves"
+  become: yes
+  become_user: "{{ spark_user }}"
+
+- name: "Setup spark environment variables"
+  template:
+    src: "spark-env.sh.j2"
+    dest: "{{ spark_source_code_dir }}/conf/spark-env.sh"
+  become: yes
+  become_user: "{{ spark_user }}"
+    
+- name: "Setup hive-site.xml"
+  template:
+    src: "hive-site.xml.j2"
+    dest: "{{ spark_source_code_dir }}/conf/hive-site.xml"
+  become: yes
+  become_user: "{{ spark_user }}"
+
+- name: "Change the user of directory - logs"
+  file:
+    path: "{{ spark_source_code_dir }}/logs"
+    owner: "{{ spark_user }}"
+    group: "{{ group_name }}"
+    state: directory
+
+- name: "Start history server"
+  command: "chdir={{ spark_source_code_dir }} ./sbin/start-history-server.sh"
+  become: yes
+  become_user: "{{ spark_user }}"
+
+- name: "Ensure that master and slaves have been stopped"
+  command: "chdir={{ spark_source_code_dir }} ./sbin/stop-all.sh"
+  become: yes
+  become_user: "{{ spark_user }}"
+  tags:
+    - stop
+
+- name: "Start master and slaves"
+  command: "chdir={{ spark_source_code_dir }} ./sbin/start-all.sh"
+  become: yes
+  become_user: "{{ spark_user }}"

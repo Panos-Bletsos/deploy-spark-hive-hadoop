@@ -1,0 +1,7 @@
+---
+- name: "Setup and run spark-generate-data"
+  hosts: master
+  remote_user: "{{ spark_user }}"
+  roles:
+    - generate-data
+  tags: generate-data

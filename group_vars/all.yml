@@ -1,0 +1,41 @@
+---
+group_name: thesis
+group_directory: /thesis_shared
+
+bench_source_code_dir: "{{ group_directory }}/spark-tpcds-bench-src"
+tpcds_kit_source_code_dir: /tmp/tpcds-kit-src
+spark_tpcds_bench_result_location: "/user/{{ spark_user }}/results"
+spark_sql_perf_warehouse_location: "/user/{{ hive_user }}/warehouse"
+spark_tpcds_bench_root_dir: "/user/{{ spark_user }}/tpcds-data"
+spark_tpcds_bench_dsdgen_dir: "{{ tpcds_kit_source_code_dir }}/tools"
+spark_generate_data_dir: "{{ group_directory }}/spark-generate-data"
+spark_generate_data_repo: https://github.com/Panos-Bletsos/spark-generate-tpcds-data.git
+spark_generate_data_branch: master
+tpcds_kit_repo: https://github.com/databricks/tpcds-kit.git
+tpcds_kit_branch: master
+benchmark_db_name: tpcds
+bench_repo: https://github.com/Panos-Bletsos/spark-tpcds-benchmark.git
+bench_branch: benchmark-only
+
+spark_sql_perf_dir: "{{ group_directory }}/spark-sql-perf"
+spark_sql_perf_repo: https://github.com/Panos-Bletsos/spark-sql-perf.git
+spark_sql_perf_branch: hive-support
+spark_sql_perf_scale_factor: 15
+
+## Spark
+spark_source_code_dir: "{{ group_directory }}/spark-src"
+spark_user: "spark"
+spark_auto_broadcast_join_threshold: "{{ 150 * 1024 * 1024 }}"
+spark_log_dir: "/user/{{ spark_user }}/logs"
+
+## Hadoop
+hadoop_dir: "{{ group_directory }}/hadoop-2.6.0"
+hadoop_user: "hadoop"
+hadoop_hdfs_port: 8020
+
+## Hive
+hive_dir: "{{ group_directory }}/apache-hive-1.2.1-bin"
+hive_user: "hive"
+hive_postgres_user: hive
+hive_postgres_metastore_db: hive_metastore
+hive_thrift_port: 9083

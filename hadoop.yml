@@ -1,0 +1,62 @@
+---
+- hosts: hadoop
+  gather_facts: true
+  remote_user: "root"
+  tasks:
+    - name: "Create user hadoop"
+      user:
+        name: "{{ hadoop_user }}"
+        group: "{{ group_name }}"
+        generate_ssh_key: yes
+
+    - name: Set authorized key for user handoop copying it from current user
+      authorized_key:
+        user: "{{ hadoop_user }}"
+        state: present
+        key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+
+    - name: "Fetch all public ssh keys"
+      shell: "cat /home/{{ hadoop_user }}/.ssh/id_rsa.pub"
+      register: ssh_keys
+      tags:
+        - ssh
+
+    - name: check keys
+      debug: msg="{{ ssh_keys.stdout }}"
+      tags:
+        - ssh
+
+    - name: deploy keys on all servers
+      authorized_key: "user={{ hadoop_user }} key={{ item[0] }}"
+      delegate_to: "{{ item[1] }}"
+      with_nested:
+        - "{{ ssh_keys.stdout }}"
+        - "{{ groups['hadoop'] }}"
+      tags:
+        - ssh
+
+- name: "Setup Hadoop common"
+  hosts: hadoop
+  remote_user: "{{ hadoop_user }}"
+  roles:
+    - hadoop-common
+  tags:
+    - hadoop
+
+- name: "Setup Hadoop namenode"
+  hosts: hadoop
+  remote_user: "{{ hadoop_user }}"
+  roles:
+    - hadoop-namenode
+  tags:
+    - hadoop
+    - hadoop_namenode
+
+- name: "Start Hadoop"
+  hosts: hadoop
+  remote_user: "{{ hadoop_user }}"
+  tasks:
+    - command: "{{ hadoop_dir }}/sbin/start-all.sh"
+  tags:
+    - hadoop
+    - start_hadoop

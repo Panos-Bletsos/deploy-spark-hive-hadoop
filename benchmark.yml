@@ -1,0 +1,7 @@
+---
+- name: "Setup and run benchmark"
+  hosts: master
+  remote_user: "{{ spark_user }}"
+  roles:
+    - benchmark
+  tags: run-benchmark

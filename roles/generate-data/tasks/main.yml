@@ -1,0 +1,27 @@
+---
+- name: "Create dir for generate-tpcds-data"
+  file:
+    path: "{{ spark_generate_data_dir }}"
+    group: "{{ group_name }}"
+    recurse: yes
+    state: directory
+
+- name: "Clone repo to generate tpcds data"
+  git:
+    repo: "{{ spark_generate_data_repo }}"
+    dest: "{{ spark_generate_data_dir }}"
+    version: "{{ spark_generate_data_branch }}"
+
+- name: "Assembly generate data"
+  command: "chdir={{ spark_generate_data_dir }} sbt assembly"
+
+- name: "Submit generate data"
+  command: "chdir={{ spark_source_code_dir }} ./bin/spark-submit --master spark://{{ groups['master'][0] }}:7077 {{ spark_generate_data_dir }}/target/scala-2.11/spark-generate-data-assembly-0.1.jar"
+  environment:
+    SPARK_SQL_PERF_ROOT_DIR: "{{ spark_tpcds_bench_root_dir }}"
+    SPARK_SQL_PERF_DSDGEN_DIR: "{{ spark_tpcds_bench_dsdgen_dir }}"
+    SPARK_SQL_PERF_SCALE_FACTOR: "{{ spark_sql_perf_scale_factor }}"
+    SPARK_SQL_PERF_DATABASE_NAME: "{{ benchmark_db_name }}"
+    SPARK_SQL_PERF_WAREHOUSE_LOCATION: "{{ spark_sql_perf_warehouse_location }}"
+  tags:
+    - run-generate-data

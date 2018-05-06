@@ -1,0 +1,82 @@
+---
+- name: "Create group"
+  group:
+    name: "{{ group_name }}"
+
+- name: "Create group directory"
+  file:
+    path: "{{ group_directory }}"
+    state: directory
+    mode: "u+rwx,g+rw,o-rwx"
+    group: "{{ group_name }}"
+
+- name: "Install git"
+  apt:
+    name: git
+    state: latest
+
+- name: "Update repository cache and install default-jdk"
+  apt:
+    name: default-jdk
+    update_cache: yes
+
+- name: "Install scala"
+  apt:
+    name: scala=2.11.6-6
+    state: present
+
+- name: "Add sbt repo"
+  apt_repository:
+    repo: "deb https://dl.bintray.com/sbt/debian /"
+
+- name: "Add sbt repo key"
+  apt_key:
+    keyserver: hkp://keyserver.ubuntu.com:80
+    id: 2EE0EA64E40A89B84B2DF73499E82A75642AC823
+
+- name: "Install sbt"
+  apt:
+    name: sbt
+    update_cache: yes
+
+- name: "Install maven"
+  apt:
+    name: maven
+    state: latest
+    
+- name: "Install build-essential"
+  apt:
+    name: build-essential
+
+- name: "Install gcc"
+  apt:
+    name: gcc
+
+- name: "Install make"
+  apt:
+    name: make
+
+- name: "Install flex"
+  apt:
+    name: flex
+
+- name: "Install bison"
+  apt:
+    name: bison
+
+- name: "Install byacc"
+  apt:
+    name: byacc
+
+- name: "Clone tpcds-kit"
+  git:
+    repo: "{{ tpcds_kit_repo }}"
+    dest: "{{ tpcds_kit_source_code_dir }}"
+    version: "{{ tpcds_kit_branch }}"
+    accept_hostkey: "yes"
+
+- name: "Setup tpcds-kit"
+  make:
+    chdir: "{{ tpcds_kit_source_code_dir }}/tools"
+    params:
+      OS: LINUX

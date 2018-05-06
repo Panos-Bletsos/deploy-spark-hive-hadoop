@@ -1,0 +1,18 @@
+---
+- name: "Create dir for spark-sql-perf"
+  file:
+    path: "{{ spark_sql_perf_dir }}"
+    owner: "{{ spark_user }}"
+    group: "{{ group_name }}"
+    mode: "u+rwx,g+rx,o-rwx"
+    state: directory
+    recurse: yes
+
+- name: "Clone spark-sql-perf"
+  git:
+    repo: "{{ spark_sql_perf_repo }}"
+    dest: "{{ spark_sql_perf_dir }}"
+    version: "{{ spark_sql_perf_branch }}"
+
+- name: "Publish spark-sql-perf to local Ivy repo"
+  command: "chdir={{ spark_sql_perf_dir }} sbt publish-local"

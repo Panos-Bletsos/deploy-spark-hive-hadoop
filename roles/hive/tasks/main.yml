@@ -1,0 +1,77 @@
+---
+- name: "Create hive user"
+  user:
+    name: "{{ hive_user }}"
+    groups: "{{ group_name }}"
+
+- name: "Download and extract Hive"
+  unarchive:
+    src: "https://archive.apache.org/dist/hive/hive-1.2.1/apache-hive-1.2.1-bin.tar.gz"
+    dest: "{{ group_directory }}"
+    remote_src: yes
+
+- name: "Set owner, group and permissions to hive directory"
+  file:
+    path: "{{ hive_dir }}"
+    owner: "{{ hive_user }}"
+    group: "{{ group_name }}"
+    mode: "u+rwx,g+rx,o-rwx"
+
+- name: "Setup Hive env"
+  template:
+    src: hive-env.sh.j2
+    dest: "{{ hive_dir }}/conf/hive-env.sh"
+
+- name: "Install postgres jdbc driver"
+  apt:
+    name: "libpostgresql-jdbc-java"
+
+- name: "Crete postgres jdbc driver symlink to hive lib"
+  file:
+    src: "/usr/share/java/postgresql-jdbc4.jar"
+    dest: "{{ hive_dir }}/lib/postgresql-jdbc4.jar"
+    state: link
+
+- name: "Create hive user is postgres"
+  postgresql_user:
+    name: "{{ hive_postgres_user }}"
+    password: "{{ hive_postgres_password }}"
+  become: yes
+  become_user: postgres
+
+- name: "Create hive metastore db"
+  postgresql_db:
+    name: "{{ hive_postgres_metastore_db }}"
+  become: yes
+  become_user: postgres
+
+- name: "Setup hive schema in postgres"
+  command: "chdir={{ hive_dir }}/scripts/metastore/upgrade/postgres/ psql -d {{ hive_postgres_metastore_db }} -c '\\i hive-schema-1.2.0.postgres.sql'"
+  become: yes
+  become_user: postgres
+
+- name: "Setup privileges for hive user in postgres"
+  postgresql_privs:
+    db: "{{ hive_postgres_metastore_db }}"
+    roles: "{{ hive_postgres_user }}"
+    privs: SELECT,INSERT,UPDATE,DELETE
+    objs: ALL_IN_SCHEMA
+  become: yes
+  become_user: postgres
+
+- name: "Setup hive-site.xml"
+  template:
+    src: hive-site.xml.j2
+    dest: "{{ hive_dir }}/conf/hive-site.xml"
+
+- name: "Setup hive metastore start script"
+  template:
+    src: start-hive-metastore.sh.j2
+    dest: "{{ hive_dir }}/start-hive-metastore.sh"
+    owner: "{{ hive_user }}"
+    mode: u+rwx,g+r,o+r-wx
+
+- name: "Start hive"
+  command: "{{ hive_dir }}/start-hive-metastore.sh"
+  become: yes
+  become_user: "{{ hive_user }}"

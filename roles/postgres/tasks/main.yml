@@ -1,0 +1,27 @@
+---
+- name: "Install postgres"
+  apt:
+    name: "postgresql=9.5+173ubuntu0.1"
+
+- name: "Setup postgres conf"
+  lineinfile:
+    path: "/etc/postgresql/9.5/main/postgresql.conf"
+    line: "{{ item }}"
+  with_items:
+    - listen_addresses = '*'
+    - standard_conforming_strings = off
+
+- name: "Setup network auth for postgres"
+  lineinfile:
+    path: "/etc/postgresql/9.5/main/pg_hba.conf"
+    line: "host all all 0.0.0.0 0.0.0.0 md5"
+
+- name: "Add postgres user to group"
+  user:
+    name: "postgres"
+    groups: "{{ group_name }},ssl-cert"
+
+- name: "Start postgres"
+  service:
+    name: "postgresql"
+    state: restarted
