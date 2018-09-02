@@ -15,6 +15,8 @@
     version: "{{ spark_branch }}"
     accept_hostkey: "yes"
     force: yes
+  tags:
+    - "clone spark"
 
 - name: "Build Spark"
   command: "chdir={{ spark_source_code_dir }} ./build/mvn -Pyarn -Phive -Phive-thriftserver -T 1C -DskipTests clean install"
@@ -25,8 +27,12 @@
   template:
     src: spark-defaults.conf.j2
     dest: "{{ spark_source_code_dir }}/conf/spark-defaults.conf"
+  tags:
+    - "setup-spark-conf"
 
 - name: "Setup Spark log4j"
   template:
     src: log4j.properties.j2
     dest: "{{ spark_source_code_dir }}/conf/log4j.properties"
+  tags:
+    - "setup-log4j"

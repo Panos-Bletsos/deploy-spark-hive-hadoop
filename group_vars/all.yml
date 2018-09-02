@@ -17,10 +17,20 @@ benchmark_db_name: tpcds
 bench_repo: https://github.com/Panos-Bletsos/spark-tpcds-benchmark.git
 bench_branch: benchmark-only
 
+## Spark SQL Perf
 spark_sql_perf_dir: "{{ group_directory }}/spark-sql-perf"
 spark_sql_perf_repo: https://github.com/Panos-Bletsos/spark-sql-perf.git
 spark_sql_perf_branch: hive-support
 spark_sql_perf_scale_factor: 15
+
+## Spark Model Selection
+spark_model_selection_dir: "{{ group_directory }}/spark-cost-model-selection-queries"
+spark_model_selection_repo: "https://github.com/Panos-Bletsos/spark-model-selection-queries.git"
+spark_model_selection_branch: "master"
+spark_model_selection_iterations: "3"
+spark_model_selection_databases: "tpcds5g, tpcds10g, tpcds30g, tpcds50g"
+spark_model_selection_broadcast_threshold: "524300000"
+spark_model_selection_tpcds_queries: "q14b, q64, q75, q95, q11, q57, q23a, q30, q3, q7"
 
 ## Spark
 spark_source_code_dir: "{{ group_directory }}/spark-src"
