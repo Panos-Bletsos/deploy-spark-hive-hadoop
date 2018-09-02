@@ -1,0 +1,36 @@
+---
+- name: "Setup spark-model-selection"
+  hosts: master
+  remote_user: "{{ spark_user }}"
+  roles:
+    - spark-model-selection
+  tags: setup-spark-model-selection
+
+- name: "Run query in order to generate simple strings"
+  hosts: master
+  remote_user: "{{ spark_user }}"
+  tasks:
+    - command: "chdir={{ spark_source_code_dir }} ./bin/spark-submit --master spark://{{ ansible_hostname }}:7077 {{ spark_model_selection_dir }}/target/sparkmodelselectionqueries-testtpcdsqueries-0.0.1-SNAPSHOT-assembly.jar"
+      environment:
+        SPARK_MODEL_SELECTION_ITERATIONS: "1"
+        SPARK_MODEL_SELECTION_DATABASES: "tpcds1g"
+  tags: "run-test-tpcds-query-1gb"
+
+- name: "Run all TPCDS test queries"
+  hosts: master
+  remote_user: "{{ spark_user }}"
+  tasks:
+    - command: "chdir={{ spark_source_code_dir }} ./bin/spark-submit --master spark://{{ ansible_hostname }}:7077 {{ spark_model_selection_dir }}/target/sparkmodelselectionqueries-testtpcdsqueries-0.0.1-SNAPSHOT-assembly.jar"
+      environment:
+        SPARK_MODEL_SELECTION_ITERATIONS: "{{ spark_model_selection_iterations }}"
+        SPARK_MODEL_SELECTION_DATABASES: "{{ spark_model_selection_databases }}"
+        SPARK_MODEL_SELECTION_AUTO_BROADCAST_JOIN_THRESHOLD: "{{ spark_model_selection_broadcast_threshold }}"
+        SPARK_MODEL_SELECTION_TEST_TPCDS_QUERIES_QUERIES: "{{ spark_model_selection_tpcds_queries }}"
+  tags: "run-test-tpcds-query-all"
+
+- name: "Run all TPCDS test queries"
+  hosts: master
+  remote_user: "{{ spark_user }}"
+  tasks:
+    - command: "chdir={{ spark_source_code_dir }} ./bin/spark-submit --master spark://{{ ansible_hostname }}:7077 {{ spark_model_selection_dir }}target/sparkmodelselectionqueries-modelselectionquries-0.0.1-SNAPSHOT-assembly.jar"
+  tags: "run-model-selection-queries"
