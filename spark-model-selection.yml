@@ -33,4 +33,6 @@
   remote_user: "{{ spark_user }}"
   tasks:
     - command: "chdir={{ spark_source_code_dir }} ./bin/spark-submit --master spark://{{ ansible_hostname }}:7077 {{ spark_model_selection_dir }}/target/sparkmodelselectionqueries-modelselectionquries-0.0.1-SNAPSHOT-assembly.jar"
+      environment:
+        SPARK_MODEL_SELECTION_DATABASES: "{{ spark_model_selection_databases }}"
   tags: "run-model-selection-queries"
