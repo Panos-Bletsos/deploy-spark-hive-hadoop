@@ -6,7 +6,7 @@ bench_source_code_dir: "{{ group_directory }}/spark-tpcds-bench-src"
 tpcds_kit_source_code_dir: /tmp/tpcds-kit-src
 spark_tpcds_bench_result_location: "/user/{{ spark_user }}/results"
 spark_sql_perf_warehouse_location: "/user/{{ hive_user }}/warehouse"
-spark_tpcds_bench_root_dir: "/user/{{ spark_user }}/tpcds-data"
+spark_tpcds_bench_root_dir: "/user/{{ spark_user }}/tpcds-data/{{ benchmark_db_name }}"
 spark_tpcds_bench_dsdgen_dir: "{{ tpcds_kit_source_code_dir }}/tools"
 spark_generate_data_dir: "{{ group_directory }}/spark-generate-data"
 spark_generate_data_repo: https://github.com/Panos-Bletsos/spark-generate-tpcds-data.git
