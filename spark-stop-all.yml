@@ -1,0 +1,12 @@
+---
+- name: "Stop history server"
+  hosts: master
+  remote_user: "{{ spark_user }}"
+  tasks:
+    - command: "chdir={{ spark_source_code_dir }} ./sbin/stop-history-server.sh"
+
+- name: "Stop all"
+  hosts: master
+  remote_user: "{{ spark_user }}"
+  tasks:
+    - command: "chdir={{ spark_source_code_dir }} ./sbin/stop-all.sh"
