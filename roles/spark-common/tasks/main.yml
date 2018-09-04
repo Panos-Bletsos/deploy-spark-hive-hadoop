@@ -16,7 +16,7 @@
     accept_hostkey: "yes"
     force: yes
   tags:
-    - "clone spark"
+    - "clone-spark"
 
 - name: "Build Spark"
   command: "chdir={{ spark_source_code_dir }} ./build/mvn -Pyarn -Phive -Phive-thriftserver -T 1C -DskipTests clean install"
